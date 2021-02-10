@@ -5,33 +5,49 @@ import 'react-phone-input-2/lib/style.css';
 import { useEffect, useState } from 'react';
 import { Auth0LockPasswordless } from 'auth0-lock';
 import {clientId,domain} from './envConfig.js'
+
 function App() {
   const [phone, setPhone] = useState(0)
   console.log(phone)
-
-
   var accessToken = null;
   var profile = null;
-  var options = {passwordlessMethod:"code", allowedConnections:["sms"]}
-  var lock2 = new Auth0LockPasswordless(clientId,domain, options)
-  
-  lock2.show()
+  var options = {
+    passwordlessMethod:"code", 
+    allowedConnections:["sms"],
+    languageDictionary: {
+      title: "",
+      passwordlessSMSInstructions:
+        "Enter your mobile or email to sign in or request an account",
+    },
+    theme:{
+        primaryColor: "#70C9BB",
+        logo:"https://www.botmd.io/images/logo.svg"
 
-  // lock.on("authenticated", function(authResult) {
-  //   lock.getUserInfo(authResult.accessToken, function(error, profileResult) {
-  //     if (error) {
-        
-  //       // Handle error
-  //       return;
-  //     }
+    }
+}
+  var lock = new Auth0LockPasswordless(clientId,domain, options)
   
-  //     accessToken = authResult.accessToken;
-  //     profile = profileResult;
+  useEffect(()=>{
+    lock.show()
+    lock.on("authenticated", function(authResult) {
+      lock.getUserInfo(authResult.accessToken, function(error, profileResult) {
+        if (error) {
+          
+          console.log("No such user")
+          return;
+        }
+    
+        accessToken = authResult.accessToken;
+        profile = profileResult;
+        console.log(accessToken)
+        console.log(profile)
+        console.log("success")
+      });
+    });
+  },[])
   
-  //     // Update DOM
-  //     lock.show();
-  //   });
-  // });
+
+  
 
 
   return (
